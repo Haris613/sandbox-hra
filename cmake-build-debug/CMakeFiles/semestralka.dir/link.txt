@@ -1,0 +1,1 @@
+/usr/bin/c++   -g   CMakeFiles/semestralka.dir/main.cpp.o CMakeFiles/semestralka.dir/tiles.cpp.o CMakeFiles/semestralka.dir/liquid.cpp.o CMakeFiles/semestralka.dir/water.cpp.o CMakeFiles/semestralka.dir/lava.cpp.o CMakeFiles/semestralka.dir/dirt.cpp.o CMakeFiles/semestralka.dir/stone.cpp.o  -o semestralka 

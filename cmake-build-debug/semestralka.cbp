@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6"/>
+	<Project>
+		<Option title="semestralka"/>
+		<Option makefile_is_custom="1"/>
+		<Option compiler="gcc"/>
+		<Option virtualFolders="CMake Files\;"/>
+		<Build>
+			<Target title="all">
+				<Option working_dir="/home/haris/CLionProjects/sandbox hra/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/home/haris/CLionProjects/sandbox\ hra/cmake-build-debug/Makefile&quot;  VERBOSE=1 all"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/haris/CLionProjects/sandbox\ hra/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/home/haris/CLionProjects/sandbox\ hra/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/home/haris/CLionProjects/sandbox\ hra/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="rebuild_cache">
+				<Option working_dir="/home/haris/CLionProjects/sandbox hra/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/home/haris/CLionProjects/sandbox\ hra/cmake-build-debug/Makefile&quot;  VERBOSE=1 rebuild_cache"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/haris/CLionProjects/sandbox\ hra/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/home/haris/CLionProjects/sandbox\ hra/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/home/haris/CLionProjects/sandbox\ hra/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="edit_cache">
+				<Option working_dir="/home/haris/CLionProjects/sandbox hra/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/home/haris/CLionProjects/sandbox\ hra/cmake-build-debug/Makefile&quot;  VERBOSE=1 edit_cache"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/haris/CLionProjects/sandbox\ hra/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/home/haris/CLionProjects/sandbox\ hra/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/home/haris/CLionProjects/sandbox\ hra/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="semestralka">
+				<Option output="/home/haris/CLionProjects/sandbox hra/cmake-build-debug/semestralka" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/haris/CLionProjects/sandbox hra/cmake-build-debug"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/usr/include/c++/5"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/5"/>
+					<Add directory="/usr/include/c++/5/backward"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/home/haris/CLionProjects/sandbox\ hra/cmake-build-debug/Makefile&quot;  VERBOSE=1 semestralka"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/haris/CLionProjects/sandbox\ hra/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/home/haris/CLionProjects/sandbox\ hra/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/home/haris/CLionProjects/sandbox\ hra/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="semestralka/fast">
+				<Option output="/home/haris/CLionProjects/sandbox hra/cmake-build-debug/semestralka" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/haris/CLionProjects/sandbox hra/cmake-build-debug"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/usr/include/c++/5"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/5"/>
+					<Add directory="/usr/include/c++/5/backward"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/home/haris/CLionProjects/sandbox\ hra/cmake-build-debug/Makefile&quot;  VERBOSE=1 semestralka/fast"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/haris/CLionProjects/sandbox\ hra/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/home/haris/CLionProjects/sandbox\ hra/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/home/haris/CLionProjects/sandbox\ hra/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+		</Build>
+		<Unit filename="/home/haris/CLionProjects/sandbox hra/dirt.cpp">
+			<Option target="semestralka"/>
+		</Unit>
+		<Unit filename="/home/haris/CLionProjects/sandbox hra/dirt.h">
+			<Option target="semestralka"/>
+		</Unit>
+		<Unit filename="/home/haris/CLionProjects/sandbox hra/enemy.h">
+			<Option target="semestralka"/>
+		</Unit>
+		<Unit filename="/home/haris/CLionProjects/sandbox hra/lava.cpp">
+			<Option target="semestralka"/>
+		</Unit>
+		<Unit filename="/home/haris/CLionProjects/sandbox hra/lava.h">
+			<Option target="semestralka"/>
+		</Unit>
+		<Unit filename="/home/haris/CLionProjects/sandbox hra/liquid.cpp">
+			<Option target="semestralka"/>
+		</Unit>
+		<Unit filename="/home/haris/CLionProjects/sandbox hra/liquid.h">
+			<Option target="semestralka"/>
+		</Unit>
+		<Unit filename="/home/haris/CLionProjects/sandbox hra/main.cpp">
+			<Option target="semestralka"/>
+		</Unit>
+		<Unit filename="/home/haris/CLionProjects/sandbox hra/menu.h">
+			<Option target="semestralka"/>
+		</Unit>
+		<Unit filename="/home/haris/CLionProjects/sandbox hra/solid.h">
+			<Option target="semestralka"/>
+		</Unit>
+		<Unit filename="/home/haris/CLionProjects/sandbox hra/stone.cpp">
+			<Option target="semestralka"/>
+		</Unit>
+		<Unit filename="/home/haris/CLionProjects/sandbox hra/stone.h">
+			<Option target="semestralka"/>
+		</Unit>
+		<Unit filename="/home/haris/CLionProjects/sandbox hra/tiles.cpp">
+			<Option target="semestralka"/>
+		</Unit>
+		<Unit filename="/home/haris/CLionProjects/sandbox hra/tiles.h">
+			<Option target="semestralka"/>
+		</Unit>
+		<Unit filename="/home/haris/CLionProjects/sandbox hra/water.cpp">
+			<Option target="semestralka"/>
+		</Unit>
+		<Unit filename="/home/haris/CLionProjects/sandbox hra/water.h">
+			<Option target="semestralka"/>
+		</Unit>
+		<Unit filename="/home/haris/CLionProjects/sandbox hra/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\"/>
+		</Unit>
+	</Project>
+</CodeBlocks_project_file>
