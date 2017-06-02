@@ -19,7 +19,6 @@ enum menuPicksConsts {NEW_GAME, LOAD_GAME, CONTROLS, EXIT};
 #define ENTER_KEY 10
 #define BACKSPACE_KEY 7
 
-#define DEFAULT_COLOR -1
 
 void initNcurses();
 WINDOW * initMenu();
@@ -124,12 +123,75 @@ void startGame(WINDOW * menu, char * fileName){
 }
 
 void newGame(WINDOW * menu){
+	char fileName[26];
+	bool warning=false;
+	halfdelay(7);
+	mvwprintw(menu,1,1,"Input name of map:");
+	mvwprintw(menu,4,1,"Usable characters are: \n letters, numbers, spaces,\n dashes and underscores");
+	box(menu,0,0);
+	int pos=0;
+	for( int i=0 ;true; ++i ){
+		char input = (char) wgetch(menu);
+		if(warning) {
+			for (int j = 1; j < 39; ++j)
+				mvwprintw(menu, 8, j , " ");
+			warning=false;
+		}
 
+		if( isalpha(input) || isdigit(input) || input==' ' || input=='_' || input=='-' ) {
+			if(pos!=24) {
+				mvwprintw(menu, 2, (pos++) + 1, "%c", input);
+				fileName[pos] = input;
+			}
+			else{
+				mvwprintw(menu, 8, 1, "Name cant be longer than 25 characters");
+				warning=true;
+			}
+		}
+		else if(input == BACKSPACE_KEY){
+			mvwprintw(menu,2,pos+1," ");
+			if(pos!=0)
+				--pos;
+		}
+		else if(input == ENTER_KEY){
+			if(pos==0){
+				mvwprintw(menu, 8,1, "Name cant be empty");
+				warning=true;
+				continue;
+			}
+			fileName[pos+1]='\0';
+			break;
+		}
+		else if(input!=ERR){
+			mvwprintw(menu, 8,1, "You cant use that character");
+			warning=true;
+		}
+
+		if(i%2)
+			mvwprintw(menu,2,pos+1," ");
+		else
+			mvwprintw(menu,2,pos+1,"_");
+		wrefresh(menu);
+	}
+	cbreak();//turning the halfdelay function off
+	werase(menu);
+	box(menu,0,0);
+	mvwprintw(menu,2,2,"Generating map...");
+	wrefresh(menu);
+	generateMap(fileName);
+	wgetch(menu);
+
+	mvwprintw(menu,2,2,"Starting the game...");//todo move to startGame()
+	wrefresh(menu);
+	wgetch(menu);
+	startGame(menu, fileName);
+	werase(menu);
+	wrefresh(menu);
 }
 
 void loadGame(WINDOW * menu){
-
-	startGame(WINDOW * menu, string & gameFile);
+	char fileName[] = "newMap";
+	startGame(menu, fileName);
 }
 
 void controls(WINDOW * menu){
