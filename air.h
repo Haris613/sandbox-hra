@@ -8,7 +8,10 @@
 #include "tiles.h"
 
 class air: public tiles {
-
+ public:
+	air(){}
+	~air(){}
+	void saveState(ofstream & mapFile)const override;
 };
 
 

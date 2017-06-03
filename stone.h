@@ -9,7 +9,10 @@
 #include "solid.h"
 
 class stone: public solid {
-
+ public:
+	stone(){}
+	~stone(){}
+	void saveState(ofstream & mapFile)const override;
 };
 
 

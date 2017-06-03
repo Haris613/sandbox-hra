@@ -9,7 +9,10 @@
 #include "liquid.h"
 
 class lava: public liquid {
-
+ public:
+	lava(){}
+	~lava(){}
+	void saveState(ofstream & mapFile)const override;
 };
 
 

@@ -7,17 +7,19 @@
 
 #include <string>
 #include <ncurses.h>
+#include <iostream>
+#include <ctime>
+#include <cstdlib>
+
+#include "air.h"
+#include "stone.h"
+#include "dirt.h"
+#include "water.h"
+#include "lava.h"
 
 using namespace std;
 
 
-enum menuPicksConsts {NEW_GAME, LOAD_GAME, CONTROLS, EXIT};
-
-#define MOVE_UP -1
-#define MOVE_DOWN 1
-
-#define ENTER_KEY 10
-#define BACKSPACE_KEY 7
 
 
 void initNcurses();
@@ -25,8 +27,11 @@ WINDOW * initMenu();
 void drawMenu(WINDOW * menu,const string (&menuPicks)[4]);
 void moveCursor(WINDOW * menu, int & currPick, const int moveDir, const string (&menuPicks)[4]);
 
-void generateMap(const char * fileName);
-void startGame(WINDOW * menu, char * fileName);
+tiles * surfaceTile();
+tiles * undergroundTile();
+tiles *** loadMap(const char * fileName);
+tiles *** generateMap(const char * fileName);
+void startGame(WINDOW * menu, tiles *** map);
 
 void newGame(WINDOW * menu);// todo use loadGame in this probably - after the new game is created
 void loadGame(WINDOW * menu);//todo maybe change to game ID, depends how ill solve loading games
@@ -93,6 +98,7 @@ WINDOW * initMenu(){
 }
 
 void drawMenu(WINDOW * menu, const string (&menuPicks)[4]){
+	werase(menu);
 	box(menu,0,0);
 
 	wattron(menu, A_REVERSE);
@@ -114,11 +120,87 @@ void moveCursor(WINDOW * menu, int & currPick, const int moveDir, const string (
 	wattroff(menu, A_REVERSE);
 }
 
-void generateMap(const char * fileName){
-
+/**
+ * @brief generate tile for the surface part of map
+ * @details this function generates tile randomly with adjusted probability, that is set to match the surface environment
+ * the probabilities are approximately as follows: dirt - 43.8%, water - 25.3%, stone - 16.9%, air - 10%, lava - 4%
+ * @return pointer to tile that has been generated
+ */
+tiles * surfaceTile() {
+	srand((unsigned int) time(0));//making the number more "random"
+	int randomTile = rand()%TILE_TYPE_END;//generate random number from tileType range
+	switch (randomTile){//according to the generated number decide what tile is to be generated
+		case AIR: //half times it will be air, the other half will be for third of cases stone and for the rest of cases dirt
+			return ((rand() % 2) ? ((rand() % 3) ? (tiles *)(new dirt) : (tiles *)(new stone)) : (tiles *)(new air));
+		case DIRT://always dirt
+			return (tiles *)(new dirt);
+		case STONE://half times it will be truly stone, the other half dirt
+			return ((rand() % 2) ? (tiles *)(new stone) : (tiles *)(new dirt));
+		case WATER://always water
+			return (tiles *)(new water);
+		case LAVA: //one fifth of cases it will be lava, otherwise for third of these cases lava, otherwise for third of these cases stone and otherwise dirt
+			return ((rand() % 5) ? ((rand() % 3) ? ((rand() % 3) ? (tiles *)(new dirt) : (tiles *)(new stone) ) : (tiles *)(new water)) : (tiles *)(new lava));
+		default:
+			return (tiles *)(new dirt);//just in case, but this should never be used
+	}
 }
 
-void startGame(WINDOW * menu, char * fileName){
+/**
+ * @brief generate tile for the underground part of map
+ * @details this function generates tile randomly with adjusted probability, that is set to match the underground environment
+ * the probabilities are approximately as follows: stone - 48.9%, lava - 24.4%, dirt - 13.3%, water - 6.7%, air - 6.7%
+ * @return pointer to tile that has been generated
+ */
+tiles * undergroundTile() {
+	srand((unsigned int) time(0));//making the number more "random"
+	int randomTile = rand()%TILE_TYPE_END;//generate random number from tileType range
+	switch (randomTile){//according to the generated number decide what tile is to be generated
+		case AIR://third of cases it will be air, otherwise for quarter of cases dirt, otherwise dirt
+			return ((rand() % 3) ? ((rand() % 4) ? (tiles *)(new stone) : (tiles *)(new dirt)) : (tiles *)(new air));
+		case DIRT://half times it will be truly dirt, the other half stone
+			return ((rand() % 2) ? (tiles *)(new dirt) : (tiles *)(new stone));
+		case STONE://always stone
+			return (tiles *) (new stone);
+		case WATER://third of cases it will truly be water, otherwise for third of cases lava, otherwise stone
+			return ((rand() % 3) ? ((rand() % 3) ? (tiles *)(new stone) : (tiles *)(new lava) ) : (tiles *)(new water));
+		case LAVA://always lava
+			return (tiles *)(new lava);
+		default:
+			return (tiles *)(new stone);//just in case, but this should never be used
+	}
+}
+
+
+tiles *** generateMap(const char * fileName){
+	ofstream mapFile;
+	mapFile.open(fileName);
+	if(! mapFile.is_open() )
+		return NULL;
+	tiles ***map = new tiles**[20];
+	for (int i = 0; i < 20; ++i) {
+		map[i]=new tiles*[100];
+	}
+	for (int i = 0; i < 20; ++i)
+		for (int j = 0; j < 100; ++j) {
+			map[i][j] = (tiles *) ((i < 8) ? (new air) : ((i < 14) ? surfaceTile() : undergroundTile()));
+			map[i][j]->saveState(mapFile);
+		}
+
+	mapFile.close();
+	return map;/*
+	//todo
+	for (int i = 0; i < 20; ++i) //todo make this function return map pointer and then pass it to the new startGame function(or with other name) where it works with this array and then deletes it
+		for (int j = 0; j < 100; ++j)// todo possibly make a new class called game and put it to its constructor..
+			delete map[i][j];
+	for (int i = 0; i < 20; ++i) {
+		delete[] map[i];
+	}
+	delete[] map;
+	return NULL;*/
+}
+
+
+void startGame(WINDOW * menu, tiles *** map){
 
 }
 
@@ -140,8 +222,9 @@ void newGame(WINDOW * menu){
 
 		if( isalpha(input) || isdigit(input) || input==' ' || input=='_' || input=='-' ) {
 			if(pos!=24) {
-				mvwprintw(menu, 2, (pos++) + 1, "%c", input);
+				mvwprintw(menu, 2, (pos) + 1, "%c", input);
 				fileName[pos] = input;
+				++pos;
 			}
 			else{
 				mvwprintw(menu, 8, 1, "Name cant be longer than 25 characters");
@@ -159,7 +242,7 @@ void newGame(WINDOW * menu){
 				warning=true;
 				continue;
 			}
-			fileName[pos+1]='\0';
+			fileName[pos]='\0';
 			break;
 		}
 		else if(input!=ERR){
@@ -178,26 +261,39 @@ void newGame(WINDOW * menu){
 	box(menu,0,0);
 	mvwprintw(menu,2,2,"Generating map...");
 	wrefresh(menu);
-	generateMap(fileName);
-	wgetch(menu);
+
+	tiles *** map = generateMap(fileName);
+	if(!map){
+		mvwprintw(menu,2,2,"Error! File could not be generated.");
+		wattron(menu, A_REVERSE);
+		mvwprintw(menu,4,2,"OK");
+		wattroff(menu, A_REVERSE);
+		wrefresh(menu);
+
+		for(char test = '\0'; test!=ENTER_KEY ; )
+			test = (char) wgetch(menu);
+
+		return;
+	}
 
 	mvwprintw(menu,2,2,"Starting the game...");//todo move to startGame()
 	wrefresh(menu);
-	wgetch(menu);
-	startGame(menu, fileName);
-	werase(menu);
-	wrefresh(menu);
+	wgetch(menu);//todo delete
+	startGame(menu, map);
 }
 
-void loadGame(WINDOW * menu){
+
+tiles *** loadMap(const char * fileName) {
+	return null;
+}
+
+void loadGame(WINDOW * menu){//todo make some kind of interface for the player to pick saved game from save folder
 	char fileName[] = "newMap";
-	startGame(menu, fileName);
+	startGame(menu, loadMap(fileName) );
 }
 
 void controls(WINDOW * menu){
 
-	werase(menu);
-	wrefresh(menu);
 }
 
 void closeMenu(WINDOW * menu){
@@ -205,5 +301,6 @@ void closeMenu(WINDOW * menu){
 	wrefresh(menu);
 	delwin(menu);
 }
+
 
 #endif //SEMESTRALKA_MENU_H

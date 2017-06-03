@@ -5,11 +5,13 @@
 #ifndef SEMESTRALKA_WATER_H
 #define SEMESTRALKA_WATER_H
 
-
 #include "liquid.h"
 
 class water: public liquid {
-
+ public:
+	water(){}
+	~water(){}
+	void saveState(ofstream & mapFile)const override;
 };
 
 

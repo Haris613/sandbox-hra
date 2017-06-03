@@ -3,3 +3,7 @@
 //
 
 #include "stone.h"
+
+void stone::saveState(ofstream & mapFile)const{
+	mapFile << (uint8_t)STONE;
+}

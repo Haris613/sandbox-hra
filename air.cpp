@@ -3,3 +3,8 @@
 //
 
 #include "air.h"
+
+void air::saveState(ofstream &mapFile)const{
+	mapFile <<(uint8_t) AIR;
+}
+

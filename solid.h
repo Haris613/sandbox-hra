@@ -9,7 +9,10 @@
 #include "tiles.h"
 
 class solid: public tiles {
-
+ public:
+	solid(){}
+	virtual ~solid(){}
+	virtual void saveState(ofstream & mapFile)const override = 0;
 };
 
 

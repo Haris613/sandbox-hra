@@ -8,7 +8,10 @@
 #include "solid.h"
 
 class dirt: public solid {
-
+ public:
+	dirt(){}
+	~dirt(){}
+	void saveState(ofstream & mapFile)const override;
 };
 
 

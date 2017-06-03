@@ -9,6 +9,9 @@
 #include "tiles.h"
 
 class liquid: public tiles {
+ public:
+	liquid(){}
+	virtual ~liquid(){}
  private:
 	unsigned int liquidHealth; //not a good name
 };

@@ -3,3 +3,8 @@
 //
 
 #include "lava.h"
+
+
+void lava::saveState(ofstream & mapFile)const{
+	mapFile << (uint8_t)LAVA;
+}
