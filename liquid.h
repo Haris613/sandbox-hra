@@ -12,6 +12,7 @@ class liquid: public tiles {
  public:
 	liquid(){}
 	virtual ~liquid(){}
+	virtual void saveState(ofstream & mapFile)const override = 0;
  private:
 	unsigned int liquidHealth; //not a good name
 };

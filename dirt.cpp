@@ -4,9 +4,9 @@
 
 #include "dirt.h"
 
-
 void dirt::saveState(ofstream & mapFile)const {
-	mapFile << (uint8_t)DIRT;
+	uint8_t type = DIRT;
+	mapFile.write((char*)&type, sizeof(type));
 }
 
 

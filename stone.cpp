@@ -5,5 +5,6 @@
 #include "stone.h"
 
 void stone::saveState(ofstream & mapFile)const{
-	mapFile << (uint8_t)STONE;
+	uint8_t type = STONE;
+	mapFile.write((char*)&type, sizeof(type));
 }

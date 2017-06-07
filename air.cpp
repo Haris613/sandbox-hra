@@ -5,6 +5,7 @@
 #include "air.h"
 
 void air::saveState(ofstream &mapFile)const{
-	mapFile <<(uint8_t) AIR;
+	uint8_t type = AIR;
+	mapFile.write((char*)&type, sizeof(type));
 }
 

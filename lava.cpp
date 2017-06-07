@@ -4,7 +4,7 @@
 
 #include "lava.h"
 
-
 void lava::saveState(ofstream & mapFile)const{
-	mapFile << (uint8_t)LAVA;
+	uint8_t type = LAVA;
+	mapFile.write((char*)&type, sizeof(type));
 }

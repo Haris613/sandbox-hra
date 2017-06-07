@@ -10,6 +10,11 @@
 #include <iostream>
 #include <ctime>
 #include <cstdlib>
+#include <dirent.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <cstring>
+#include <vector>
 
 #include "air.h"
 #include "stone.h"
@@ -24,13 +29,17 @@ using namespace std;
 
 void initNcurses();
 WINDOW * initMenu();
-void drawMenu(WINDOW * menu,const string (&menuPicks)[4]);
-void moveCursor(WINDOW * menu, int & currPick, const int moveDir, const string (&menuPicks)[4]);
+void drawMenu(WINDOW * menu,const vector<string> & menuPicks, const int displayMode);
+void moveCursor(WINDOW * menu, unsigned int & currPick, const int moveDir, const vector<string> & menuPicks, const int displayMode);
 
 tiles * surfaceTile();
 tiles * undergroundTile();
-tiles *** loadMap(const char * fileName);
 tiles *** generateMap(const char * fileName);
+
+tiles * resolveTile(const uint8_t tileType);
+tiles *** loadMap(const char * fileName);
+
+
 void startGame(WINDOW * menu, tiles *** map);
 
 void newGame(WINDOW * menu);// todo use loadGame in this probably - after the new game is created
@@ -41,17 +50,17 @@ void closeMenu(WINDOW * menu);
 void menu(){
 	initNcurses();
 
-	const string menuPicks[4] = {"New game", "Load game", "Controls", "Exit"};
+	const vector<string> menuPicks = {"New game", "Load game", "Controls", "Exit"};
 	WINDOW * menu = initMenu();
-	int currPick=NEW_GAME;
-	drawMenu(menu,menuPicks);
+	unsigned int currPick=NEW_GAME;
+	drawMenu(menu,menuPicks,EVEN_LINES);
 
 	while(true) {
 		int input = wgetch(menu);
 		if( input == KEY_UP && currPick>NEW_GAME )
-			moveCursor(menu,currPick,MOVE_UP,menuPicks);
+			moveCursor(menu,currPick,MOVE_UP,menuPicks,EVEN_LINES);
 		if( input == KEY_DOWN && currPick<EXIT )
-			moveCursor(menu,currPick,MOVE_DOWN,menuPicks);
+			moveCursor(menu,currPick,MOVE_DOWN,menuPicks,EVEN_LINES);
 
 
 		if( input == ENTER_KEY ){
@@ -75,7 +84,7 @@ void menu(){
 					throw "Menu wrong currPick";
 			}
 			currPick = NEW_GAME;
-			drawMenu(menu,menuPicks);
+			drawMenu(menu,menuPicks,EVEN_LINES);
 		}
 	}
 }
@@ -91,33 +100,37 @@ void initNcurses(){
 }
 
 WINDOW * initMenu(){
-	WINDOW * menu = newwin(20, 40, 1, COLS/2-20);
+	WINDOW * menu = newwin(WINDOW_HEIGHT, WINDOW_WIDTH, 1, COLS/2-WINDOW_WIDTH/2);
 
 	keypad( menu, TRUE );
 	return menu;
 }
 
-void drawMenu(WINDOW * menu, const string (&menuPicks)[4]){
+void drawMenu(WINDOW * menu, const vector<string> & menuPicks, const int displayMode){
 	werase(menu);
 	box(menu,0,0);
 
+	if(menuPicks.empty())
+		return;
+
 	wattron(menu, A_REVERSE);
-	mvwprintw(menu,1,3,menuPicks[NEW_GAME].c_str());
+	mvwprintw(menu,1,3,menuPicks[0].c_str());
 	wattroff(menu, A_REVERSE);
 
-	for (int i = LOAD_GAME; i <= EXIT; ++i)
-		mvwprintw(menu,i*2+1,3,menuPicks[i].c_str());
+	for (size_t i = 1, size = menuPicks.size() ; i < size && i*displayMode < WINDOW_HEIGHT ; ++i)
+		mvwprintw(menu,i*displayMode+1,3,menuPicks[i].c_str());
 }
 
-void moveCursor(WINDOW * menu, int & currPick, const int moveDir, const string (&menuPicks)[4]){
+void moveCursor(WINDOW * menu,unsigned  int & currPick, const int moveDir, const vector<string> & menuPicks, const int displayMode){
 
-	mvwprintw(menu,currPick*2+1,3,menuPicks[currPick].c_str());
+	mvwprintw(menu,currPick*displayMode+1,3,menuPicks[currPick].c_str());
 
 	currPick+=moveDir;
 
 	wattron(menu, A_REVERSE);
-	mvwprintw(menu,currPick*2+1,3,menuPicks[currPick].c_str());
+	mvwprintw(menu,currPick*displayMode+1,3,menuPicks[currPick].c_str());
 	wattroff(menu, A_REVERSE);
+	//todo currPick can go out of bounds(graphical bounds) with more than 18 files in map folder
 }
 
 /**
@@ -127,7 +140,6 @@ void moveCursor(WINDOW * menu, int & currPick, const int moveDir, const string (
  * @return pointer to tile that has been generated
  */
 tiles * surfaceTile() {
-	srand((unsigned int) time(0));//making the number more "random"
 	int randomTile = rand()%TILE_TYPE_END;//generate random number from tileType range
 	switch (randomTile){//according to the generated number decide what tile is to be generated
 		case AIR: //half times it will be air, the other half will be for third of cases stone and for the rest of cases dirt
@@ -152,7 +164,6 @@ tiles * surfaceTile() {
  * @return pointer to tile that has been generated
  */
 tiles * undergroundTile() {
-	srand((unsigned int) time(0));//making the number more "random"
 	int randomTile = rand()%TILE_TYPE_END;//generate random number from tileType range
 	switch (randomTile){//according to the generated number decide what tile is to be generated
 		case AIR://third of cases it will be air, otherwise for quarter of cases dirt, otherwise dirt
@@ -172,8 +183,11 @@ tiles * undergroundTile() {
 
 
 tiles *** generateMap(const char * fileName){
+	srand((unsigned int) time(0));
+	mkdir("map", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+
 	ofstream mapFile;
-	mapFile.open(fileName);
+	mapFile.open(fileName, ios::binary);
 	if(! mapFile.is_open() )
 		return NULL;
 	tiles ***map = new tiles**[20];
@@ -187,16 +201,7 @@ tiles *** generateMap(const char * fileName){
 		}
 
 	mapFile.close();
-	return map;/*
-	//todo
-	for (int i = 0; i < 20; ++i) //todo make this function return map pointer and then pass it to the new startGame function(or with other name) where it works with this array and then deletes it
-		for (int j = 0; j < 100; ++j)// todo possibly make a new class called game and put it to its constructor..
-			delete map[i][j];
-	for (int i = 0; i < 20; ++i) {
-		delete[] map[i];
-	}
-	delete[] map;
-	return NULL;*/
+	return map;
 }
 
 
@@ -205,13 +210,13 @@ void startGame(WINDOW * menu, tiles *** map){
 }
 
 void newGame(WINDOW * menu){
-	char fileName[26];
+	char fileName[30]="map/";
 	bool warning=false;
 	halfdelay(7);
 	mvwprintw(menu,1,1,"Input name of map:");
 	mvwprintw(menu,4,1,"Usable characters are: \n letters, numbers, spaces,\n dashes and underscores");
 	box(menu,0,0);
-	int pos=0;
+	int pos=4;
 	for( int i=0 ;true; ++i ){
 		char input = (char) wgetch(menu);
 		if(warning) {
@@ -221,8 +226,8 @@ void newGame(WINDOW * menu){
 		}
 
 		if( isalpha(input) || isdigit(input) || input==' ' || input=='_' || input=='-' ) {
-			if(pos!=24) {
-				mvwprintw(menu, 2, (pos) + 1, "%c", input);
+			if(pos!=28) {
+				mvwprintw(menu, 2, (pos-4) + 1 , "%c", input);
 				fileName[pos] = input;
 				++pos;
 			}
@@ -232,12 +237,12 @@ void newGame(WINDOW * menu){
 			}
 		}
 		else if(input == BACKSPACE_KEY){
-			mvwprintw(menu,2,pos+1," ");
-			if(pos!=0)
+			mvwprintw(menu,2,pos-4+1," ");
+			if(pos!=4)
 				--pos;
 		}
 		else if(input == ENTER_KEY){
-			if(pos==0){
+			if(pos==4){
 				mvwprintw(menu, 8,1, "Name cant be empty");
 				warning=true;
 				continue;
@@ -251,9 +256,9 @@ void newGame(WINDOW * menu){
 		}
 
 		if(i%2)
-			mvwprintw(menu,2,pos+1," ");
+			mvwprintw(menu,2,pos-4+1," ");
 		else
-			mvwprintw(menu,2,pos+1,"_");
+			mvwprintw(menu,2,pos-4+1,"_");
 		wrefresh(menu);
 	}
 	cbreak();//turning the halfdelay function off
@@ -282,14 +287,106 @@ void newGame(WINDOW * menu){
 	startGame(menu, map);
 }
 
-
-tiles *** loadMap(const char * fileName) {
-	return null;
+tiles * resolveTile(const uint8_t tileType){
+	switch(tileType){
+		case AIR:
+			return new air;
+		case DIRT:
+			return new dirt;
+		case STONE:
+			return new stone;
+		case WATER:
+			return new water;
+		case LAVA:
+			return new lava;
+		default:
+			return NULL;
+	}
 }
 
-void loadGame(WINDOW * menu){//todo make some kind of interface for the player to pick saved game from save folder
-	char fileName[] = "newMap";
-	startGame(menu, loadMap(fileName) );
+tiles *** loadMap(const char * fileName) {
+	string path = "map/";
+	path+=fileName;
+	ifstream mapFile;
+	mapFile.open(path.c_str(),ios::binary);
+	if(! mapFile.is_open() )
+		return NULL;
+
+	tiles ***map = new tiles**[20];
+	for (int i = 0; i < 20; ++i) {
+		map[i]=new tiles*[100];
+	}
+	for (int i = 0; i < 20; ++i)
+		for (int j = 0; j < 100; ++j) {
+			uint8_t tileType;
+			mapFile.read((char*)&tileType,sizeof(tileType));
+			map[i][j]=resolveTile(tileType);
+
+			if(!map[i][j]) {
+				for (int k = 0; k < i; ++k)
+					for (int l = 0; l < j; ++l)
+						delete map[k][l];
+				for (int k = 0; k < 20; ++k)
+					delete[] map[k];
+				delete[] map;
+				return NULL;
+			}
+
+		}
+	return map;
+}
+
+void loadGame(WINDOW * menu){
+	box(menu,0,0);
+	vector<string> files;
+	DIR * mapDir;
+	struct dirent * mapFile;
+	if((mapDir = opendir ("map")) != NULL) {
+		while((mapFile = readdir (mapDir)) != NULL) {//todo all files including those that contain illegal characters are shown here
+			if(mapFile->d_name[0]!='.')
+				files.push_back(mapFile->d_name);
+		}
+		closedir (mapDir);
+	}
+	drawMenu(menu,files,ALL_LINES);
+
+	tiles *** map;
+	unsigned int currPick=0;
+	while(true) {
+		int input = wgetch(menu);
+		if (input == KEY_UP && currPick > 0)
+			moveCursor(menu, currPick, MOVE_UP, files, ALL_LINES);
+		if (input == KEY_DOWN && currPick < files.size()-1)
+			moveCursor(menu, currPick, MOVE_DOWN, files, ALL_LINES);
+
+
+		if (input == ENTER_KEY) {
+			map = loadMap(files[currPick].c_str());
+			break;
+		}
+	}
+
+	if(!map){
+		werase(menu);
+		box(menu,0,0);
+		mvwprintw(menu,2,2,"Error! File could not be read.");
+		wattron(menu, A_REVERSE);
+		mvwprintw(menu,4,2,"OK");
+		wattroff(menu, A_REVERSE);
+		wrefresh(menu);
+
+		for(char test = '\0'; test!=ENTER_KEY ; )
+			test = (char) wgetch(menu);
+		return;
+	}
+	mvwprintw(menu,4,2,"OK");
+	wattroff(menu, A_REVERSE);
+	wrefresh(menu);
+
+	for(char test = '\0'; test!=ENTER_KEY ; )
+		test = (char) wgetch(menu);
+
+	startGame(menu, map);
 }
 
 void controls(WINDOW * menu){
