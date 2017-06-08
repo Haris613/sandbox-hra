@@ -14,6 +14,7 @@ enum displayType_t{ALL_LINES = 1, EVEN_LINES = 2};
 
 #define ENTER_KEY 10
 #define BACKSPACE_KEY 7
+#define ESC_KEY 27
 
 #define WINDOW_HEIGHT 20
 #define WINDOW_WIDTH 40

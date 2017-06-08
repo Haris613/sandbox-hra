@@ -91,14 +91,16 @@ void menu(){
 /**
  * @brief initializes ncurses standard screen and sets attributes to desired values
  * @details First initializes the screen, then noecho is set so user input isnt printed on the screen right away and
- * probably at bad coordinates. Cbreak makes the program wait for user input every time getch or wgetch is called.
- * curs_set(0) hides the cursor. If the terminal can draw colors, initialize them. Refresh draws empty screen.
+ * probably at bad coordinates. Cbreak makes the program wait for user input every time getch or wgetch is called,
+ * curs_set(0) hides the cursor, esc delay is set to 1 millis so the program can act upon it immediately.
+ * If the terminal can draw colors, initialize them. Refresh draws empty screen.
  */
 void initNcurses(){
 	initscr();
 	noecho();
 	cbreak();
 	curs_set(0);
+	set_escdelay(1);
 	if( has_colors() )
 		start_color();
 	refresh();
@@ -137,7 +139,7 @@ void drawMenu(WINDOW * menu, const vector<string> & menuPicks, const int display
 	mvwprintw(menu,1,3,menuPicks[0].c_str());
 	wattroff(menu, A_REVERSE);
 
-	for (size_t i = 1, size = menuPicks.size() ; i < size && i*displayMode < WINDOW_HEIGHT ; ++i)
+	for (size_t i = 1, size = menuPicks.size() ; i < size && i*displayMode < WINDOW_HEIGHT-2 ; ++i)
 		mvwprintw(menu,i*displayMode+1,3,menuPicks[i].c_str());
 
 	wrefresh(menu);
@@ -307,6 +309,8 @@ void newGame(WINDOW * menu){
 			path[pos]='\0';
 			break;
 		}
+		else if(input == ESC_KEY)
+			return;
 		else if(input!=ERR){ //ERR is generated when the player doesnt input anything within the halfdelay time period
 			mvwprintw(menu, 8,1, "You cant use that character");
 			warning=true;
@@ -429,7 +433,17 @@ void loadGame(WINDOW * menu){
 		closedir (mapDir);
 	}
 	drawMenu(menu,files,ALL_LINES);
+	if( files.empty() ) {
+		mvwprintw(menu, 2, 2, "There are no saved games yet");
+		wattron(menu, A_REVERSE);
+		mvwprintw(menu,4,2,"OK");
+		wattroff(menu, A_REVERSE);
+		wrefresh(menu);
 
+		for(char test = '\0'; test!=ENTER_KEY && test!=ESC_KEY ; )
+			test = (char) wgetch(menu);
+		return;
+	}
 	tiles *** map;
 	unsigned int currPick=0;
 	while(true) { //todo this could be merged to one unified function with the menu (it would return currPick)
@@ -444,6 +458,8 @@ void loadGame(WINDOW * menu){
 			map = loadMap(files[currPick].c_str());
 			break;
 		}
+		else if(input == ESC_KEY)
+			return;
 	}
 
 	if(!map){
@@ -455,7 +471,7 @@ void loadGame(WINDOW * menu){
 		wattroff(menu, A_REVERSE);
 		wrefresh(menu);
 
-		for(char test = '\0'; test!=ENTER_KEY ; )
+		for(char test = '\0'; test!=ENTER_KEY && test!=ESC_KEY ; )
 			test = (char) wgetch(menu);
 		return;
 	}
@@ -463,7 +479,7 @@ void loadGame(WINDOW * menu){
 	wattroff(menu, A_REVERSE);
 	wrefresh(menu);
 
-	for(char test = '\0'; test!=ENTER_KEY ; )
+	for(char test = '\0'; test!=ENTER_KEY && test!=ESC_KEY ; )
 		test = (char) wgetch(menu);
 
 	startGame(menu, map);
@@ -471,10 +487,16 @@ void loadGame(WINDOW * menu){
 
 /**
  * @brief tells the player how to control this game
- * @param menu pointer to the menu window 
+ * @param menu pointer to the menu window
  */
 void controls(WINDOW * menu){
-//todo just write all controls
+	mvwprintw(menu,1,1,"Movement: \n  up to jump, left to move left,\n  right to move right");
+	mvwprintw(menu,5,1,"Tile manipulation:\n  While holding a tile/pickaxe,\n  use arrow keys to determine\n  "
+			"location of tile you \n  want to place/destroy and press e,\n  for example left key+up key points\n  "
+			"to place left of players head.\n  Player picks tiles/pickaxe with use\n  of numeric keys.");
+	box(menu,0,0);
+	for(char test = '\0'; test!=ENTER_KEY && test!=ESC_KEY ; )
+		test = (char) wgetch(menu);
 }
 
 /**
